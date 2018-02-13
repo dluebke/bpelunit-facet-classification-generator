@@ -1,14 +1,16 @@
 package net.bpelunit.suitegenerator.datastructures.conditions;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class OperandCondition implements ICondition {
 
 	private String tag;
 
 	public OperandCondition(String tag) {
-		this.tag = tag;
+		this.tag = tag.trim();
 	}
 
 	public ICondition visit(ConditionParser parser) {
@@ -24,7 +26,7 @@ public class OperandCondition implements ICondition {
 	@Override
 	public boolean evaluate(List<? extends IOperand> ops) {
 		for (IOperand op : ops) {
-			if (op.getOpName().equalsIgnoreCase(tag)) {
+			if (op.getOpName().trim().equalsIgnoreCase(tag)) {
 				return true;
 			}
 		}
@@ -62,5 +64,26 @@ public class OperandCondition implements ICondition {
 	@Override
 	public String toString() {
 		return tag;
+	}
+	
+	@Override
+	public Set<OperandCondition> getVariables() {
+		Set<OperandCondition> result = new HashSet<>();
+		result.add(this);
+		return result;
+	}
+	
+	public String getTag() {
+		return tag;
+	}
+	
+	@Override
+	public boolean canEvaluate(List<? extends IOperand> l) {
+		for(IOperand i : l) {
+			if(i.getOpName().equals(tag)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

@@ -1,7 +1,9 @@
 package net.bpelunit.suitegenerator.datastructures.conditions;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class NOT implements ICondition {
 
@@ -58,7 +60,18 @@ public class NOT implements ICondition {
 		if (first == null) {
 			return "NOT";
 		}
-		return "(!" + first + ")";
+		return "!(" + first + ")";
 	}
 
+	@Override
+	public Set<OperandCondition> getVariables() {
+		Set<OperandCondition> result = new HashSet<>();
+		result.addAll(first.getVariables());
+		return result;
+	}
+	
+	@Override
+	public boolean canEvaluate(List<? extends IOperand> l) {
+		return first.canEvaluate(l);
+	}
 }

@@ -14,7 +14,6 @@ import org.jdom2.Element;
 import org.jdom2.Namespace;
 
 import net.bpelunit.suitegenerator.datastructures.classification.Classification;
-import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariable;
 import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariableSelection;
 import net.bpelunit.suitegenerator.datastructures.conditions.ConditionBundle;
 import net.bpelunit.suitegenerator.datastructures.conditions.ICondition;

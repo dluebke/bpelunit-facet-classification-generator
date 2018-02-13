@@ -1,7 +1,9 @@
 package net.bpelunit.suitegenerator.datastructures.conditions;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class XOR implements ICondition {
 
@@ -60,7 +62,22 @@ public class XOR implements ICondition {
 		if (first == null || second == null) {
 			return "XOR";
 		}
-		return "(" + first + " ^ " + second + ")";
+		
+		// Required for IPOG-solver...
+		return "(" + "(" + first + " && " + "!(" + second + ")" + ")" + " || " + "(" + "!(" + first + ")" + " && " + second + ")" + ")";
+//		return "(" + first + " ^ " + second + ")";
 	}
 
+	@Override
+	public Set<OperandCondition> getVariables() {
+		Set<OperandCondition> result = new HashSet<>();
+		result.addAll(first.getVariables());
+		result.addAll(second.getVariables());
+		return result;
+	}
+	
+	@Override
+	public boolean canEvaluate(List<? extends IOperand> l) {
+		return first.canEvaluate(l) && second.canEvaluate(l);
+	}
 }

@@ -8,26 +8,27 @@ import java.util.Map;
 import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariable;
 import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariableNameComparator;
 import net.bpelunit.suitegenerator.recommendation.Recommender;
+import net.bpelunit.suitegenerator.solver.ConditionSATSolver;
 import net.bpelunit.suitegenerator.statistics.Selection;
 
-public class FullTestRecommenderCountOnly extends Recommender {
+public class FastFullTestRecommenderCountOnly extends Recommender {
 
 	private List<ClassificationVariable> roots = new ArrayList<>();
 	private Map<ClassificationVariable, List<Selection>> leafsByRoot;
 	private long testCasesToGenerate = 0;
-	private long testCasesForbidden;
 	private final Mode mode;
+	private ConditionSATSolver solver;
 	
 	public enum Mode {
 		SILENT,
 		NORMAL
 	}
 	
-	public FullTestRecommenderCountOnly() {
+	public FastFullTestRecommenderCountOnly() {
 		this(Mode.NORMAL);
 	}
 	
-	public FullTestRecommenderCountOnly(Mode mode) {
+	public FastFullTestRecommenderCountOnly(Mode mode) {
 		this.mode = mode;
 	}
 
@@ -36,14 +37,15 @@ public class FullTestRecommenderCountOnly extends Recommender {
 		super.createRecommendations();
 		
 		testCasesToGenerate = 0;
-		testCasesForbidden = 0;
 		
 		leafsByRoot = new HashMap<>(statistic.getRootVariables());
 		
 		roots.clear();
 		roots.addAll(leafsByRoot.keySet());
 		roots.sort(new ClassificationVariableNameComparator());
-
+		
+		solver = new ConditionSATSolver(forbidden, new HashMap<>(statistic.getRootVariables()));
+		
 		long start = System.currentTimeMillis();
 		createRecommendation(new ArrayList<>());
 		long end = System.currentTimeMillis();
@@ -60,8 +62,6 @@ public class FullTestRecommenderCountOnly extends Recommender {
 		if(rootToHandle == roots.size()) {
 			if(!forbidden.evaluate(chosenValuesForRoots.toArray(new Selection[rootToHandle]))) {
 				testCasesToGenerate++;
-			} else { 
-				testCasesForbidden++;
 			}
 			
 			return;
@@ -73,16 +73,9 @@ public class FullTestRecommenderCountOnly extends Recommender {
 			newSelection.addAll(chosenValuesForRoots);
 			newSelection.add(s);
 			
-			createRecommendation(newSelection);
+			if(!solver.isAlwaysForbidden(newSelection)) {
+				createRecommendation(newSelection);
+			}
 		}
 	}
-
-	public long getValidTestCases() {
-		return testCasesToGenerate;
-	}
-
-	public long getForbiddenTestCases() {
-		return testCasesForbidden;
-	}
-
 }

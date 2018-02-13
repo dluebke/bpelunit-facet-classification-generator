@@ -1,6 +1,7 @@
 package net.bpelunit.suitegenerator.datastructures.conditions;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ICondition {
 
@@ -17,5 +18,9 @@ public interface ICondition {
 	boolean evaluate(IOperand... ops);
 
 	ICondition visit(ConditionParser parser);
+
+	Set<OperandCondition> getVariables();
+
+	boolean canEvaluate(List<? extends IOperand> l);
 
 }

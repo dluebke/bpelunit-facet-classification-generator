@@ -1,13 +1,18 @@
 package net.bpelunit.suitegenerator.recommendation;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.bpelunit.suitegenerator.datastructures.classification.Classification;
 import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariable;
+import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariableSelection;
 import net.bpelunit.suitegenerator.datastructures.conditions.ICondition;
+import net.bpelunit.suitegenerator.datastructures.conditions.OperandCondition;
 import net.bpelunit.suitegenerator.datastructures.variables.VariableLibrary;
 import net.bpelunit.suitegenerator.statistics.IStatistics;
 import net.bpelunit.suitegenerator.statistics.Selection;
@@ -27,6 +32,30 @@ public abstract class Recommender implements IRecommender {
 
 	protected void createRecommendations() {
 		recommendations = new LinkedList<>();
+		if(forbidden != null) {
+			List<String> leafNames = new ArrayList<>();
+			Collection<ClassificationVariableSelection> allLeaves = classification.getAllClassificationTreeLeaves();
+			for(ClassificationVariableSelection c : allLeaves) {
+				leafNames.add(c.getCompleteName());
+			}
+			
+			List<String> varNames = new ArrayList<>();
+			Set<OperandCondition> vars = forbidden.getVariables();
+			for(OperandCondition o : vars) {
+				varNames.add(o.getTag());
+			}
+			
+			List<String> unknownVariables = new ArrayList<>();
+			for(String varName : varNames) {
+				if(!leafNames.contains(varName)) {
+					unknownVariables.add(varName);
+				}
+			}
+			
+			if(unknownVariables.size() > 0) {
+				throw new RuntimeException("Following variables in conditions are not in the classification tree: " + unknownVariables);
+			}
+		}
 	}
 
 	@Override

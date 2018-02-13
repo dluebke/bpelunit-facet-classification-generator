@@ -1,8 +1,14 @@
 package net.bpelunit.suitegenerator.datastructures.conditions;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
+/**
+ * TODO Improve in order to make an object reusable for multiple parsings
+ *
+ */
 public class ConditionParser {
 
 	private int position = 0;
@@ -154,6 +160,15 @@ class OpenBracket implements ICondition {
 		return "{ ";
 	}
 
+	@Override
+	public Set<OperandCondition> getVariables() {
+		return new HashSet<>();
+	}
+
+	@Override
+	public boolean canEvaluate(List<? extends IOperand> l) {
+		return true;
+	}
 }
 
 class CloseBracket implements ICondition {
@@ -182,5 +197,14 @@ class CloseBracket implements ICondition {
 	public String toString() {
 		return " }";
 	}
+	
+	@Override
+	public Set<OperandCondition> getVariables() {
+		return new HashSet<>();
+	}
 
+	@Override
+	public boolean canEvaluate(List<? extends IOperand> l) {
+		return true;
+	}
 }
