@@ -45,14 +45,17 @@ public class ConditionSATSolver {
 	
 	
 	public ConditionSATSolver(ICondition c, Map<ClassificationVariable, List<?extends IOperand>> allVariablesWithValues) {
-		if(c == null || allVariablesWithValues == null) {
+		if(allVariablesWithValues == null) {
 			throw new NullPointerException();
 		}
-		forbidden = c;
 		
-		for(OperandCondition oc : c.getVariables()) {
-			influencialRoots.add(getRootName(oc));
+		if(c != null) {
+			forbidden = c;
+			for(OperandCondition oc : c.getVariables()) {
+				influencialRoots.add(getRootName(oc));
+			}
 		}
+		
 		
 		influencialVariablesWithValues = new HashMap<>();
 		for(ClassificationVariable v : allVariablesWithValues.keySet()) {
@@ -202,6 +205,9 @@ public class ConditionSATSolver {
 	}
 
 	private boolean isAlwaysForbiddenInternal(ICondition c, List<IOperand> influencialVariablesChosen, List<List<?extends IOperand>> openVariables) {
+		if(c == null) {
+			return false;
+		}
 		if(openVariables.isEmpty()) {
 			boolean isAlwaysForbidden = c.evaluate(influencialVariablesChosen);
 			if(doLogging) {
