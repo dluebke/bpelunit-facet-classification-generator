@@ -8,6 +8,7 @@ import java.util.Random;
 import net.bpelunit.suitegenerator.datastructures.classification.Classification;
 import net.bpelunit.suitegenerator.datastructures.variables.VariableLibrary;
 import net.bpelunit.suitegenerator.recommendation.IRecommender;
+import net.bpelunit.suitegenerator.recommendation.IRecommenderStatusListener;
 import net.bpelunit.suitegenerator.recommendation.Recommendation;
 import net.bpelunit.suitegenerator.recommendation.full.FullTestRecommender;
 import net.bpelunit.suitegenerator.statistics.IStatistics;
@@ -15,26 +16,44 @@ import net.bpelunit.suitegenerator.statistics.IStatistics;
 public abstract class AbstractRandomRecommender implements IRecommender {
 
 	private FullTestRecommender fullTestRecommender = new FullTestRecommender();
+	private List<IRecommenderStatusListener> listeners = new ArrayList<>(); 
+	
+	@Override
+	public void addRecommenderStatusListener(IRecommenderStatusListener listener) {
+		listeners.add(listener);	
+	}
+	
+	@Override
+	public void removeRecommenderStatusListener(IRecommenderStatusListener listener) {
+		listeners.remove(listener);	
+	}
+	
+	protected void notifyNewState(String description) {
+		for(IRecommenderStatusListener l : listeners) {
+			l.newState(description);
+		}
+	}
 	
 	@Override
 	public Collection<Recommendation> getRecommendations() {
+		notifyNewState("Generating all test cases...");
 		List<Recommendation> allRecommendations = fullTestRecommender.getRecommendations();
 		
 		int recommendationCount = getMaximumRecommendations();
 		
-		System.out.println("Choosing " + recommendationCount + " from " + allRecommendations.size() + " possible combinations");
+		
+		notifyNewState("Choosing " + recommendationCount + " from " + allRecommendations.size() + " possible combinations");
 		if(allRecommendations.size() <= recommendationCount) {
-			System.out.println("Only " + allRecommendations.size() + " possible recommendations!");
-			System.out.println("Returning " + allRecommendations.size() + " random recommendations");
+			notifyNewState("Only " + allRecommendations.size() + " possible recommendations!");
+			notifyNewState("Returning " + allRecommendations.size() + " random recommendations");
 			return allRecommendations;
 		}
 		
 		long seed = System.currentTimeMillis();
-//		long seed = 1501709728002l;
-		System.out.println("Using random seed: " + seed);
+		notifyNewState("Using random seed: " + seed);
 		Random random = new Random(seed);
 		if(recommendationCount > 100) {
-			System.out.println("!!! ATTENTION: When using the " + getClass().getSimpleName() + ", please make sure that BPELUnit has enough memory to execute the test suite successfully!");
+			notifyNewState("!!! ATTENTION: When using the " + getClass().getSimpleName() + ", please make sure that BPELUnit has enough memory to execute the test suite successfully!");
 		}
 		
 		List<Recommendation> randomRecommendations = new ArrayList<>(recommendationCount);
@@ -44,7 +63,7 @@ public abstract class AbstractRandomRecommender implements IRecommender {
 			randomRecommendations.add(r);
 		}
 		
-		System.out.println("Returning " + randomRecommendations.size() + " random recommendations");
+		notifyNewState("Returning " + randomRecommendations.size() + " random recommendations");
 		
 		return randomRecommendations;
 	}

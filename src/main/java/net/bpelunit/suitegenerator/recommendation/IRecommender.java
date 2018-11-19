@@ -12,4 +12,6 @@ public interface IRecommender {
 
 	void setClassificationData(IStatistics stat, VariableLibrary variables, Classification classification);
 
+	void addRecommenderStatusListener(IRecommenderStatusListener listener);
+	void removeRecommenderStatusListener(IRecommenderStatusListener listener);
 }

@@ -26,10 +26,27 @@ public abstract class Recommender implements IRecommender {
 	protected ICondition forbidden;
 
 	protected List<Recommendation> recommendations = null;
-
+	protected List<IRecommenderStatusListener> listeners = new ArrayList<>();
+	
 	public Recommender() {
 	}
 
+	@Override
+	public void addRecommenderStatusListener(IRecommenderStatusListener listener) {
+		listeners.add(listener);
+	}
+	
+	@Override
+	public void removeRecommenderStatusListener(IRecommenderStatusListener listener) {
+		listeners.remove(listener);
+	}
+	
+	protected void notifyNewState(String description) {
+		for(IRecommenderStatusListener l : listeners) {
+			l.newState(description);
+		}
+	}
+	
 	protected void createRecommendations() {
 		recommendations = new LinkedList<>();
 		if(forbidden != null) {

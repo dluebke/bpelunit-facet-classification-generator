@@ -47,7 +47,7 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 	
 	@Override
 	public void setConfigurationParameter(String parameter) {
-		System.out.println("Configuration passed: " + parameter);
+		notifyNewState("Configuration passed: " + parameter);
 		String[] paramPairs = parameter.split(",");
 		
 		for(String paramPair : paramPairs) {
@@ -78,8 +78,10 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 	@Override
 	protected void createRecommendations() {
 		super.createRecommendations();
+
+		notifyNewState("Efective configuration: t=" + tCoverage + ", repetitions=" + repetitions);
 		
-		System.out.println("Using random seed: " + seed);
+		notifyNewState("Using random seed: " + seed);
 		randomGenerator = new Random(seed);
 		super.createRecommendations();
 		
@@ -98,14 +100,15 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 
 		solver = new ConditionSATSolver(forbidden, leafsByRoot);
 		
+		notifyNewState("Generate all valid tupels");
 		long t1 = System.currentTimeMillis();
 		List<List<?extends IOperand>> uncoveredTupels = generateAllValidTupels(new ArrayList<>(roots));
-
 		long t2 = System.currentTimeMillis();
+		notifyNewState("Generated " + uncoveredTupels.size() + " tupels");
 		
 		createRecommendations(uncoveredTupels);
 		long t3 = System.currentTimeMillis();
-		System.out.println("Generated " + recommendations.size() + " test cases in " + (t3-t1) + "ms [" + (t2-t1) + "," + (t3-t2) + "]");
+		notifyNewState("Generated " + recommendations.size() + " test cases in " + (t3-t1) + "ms [" + (t2-t1) + "," + (t3-t2) + "]");
 		
 		if(PRINT_CACHE_STATISTICS) {
 			long cacheHits = solver.getCacheHits();
@@ -117,7 +120,7 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 			} else {
 				cacheEfficiency = 0;
 			}
-			System.out.println("Cache Size: " + solver.getCacheSize() + ", Cache Hits: " + cacheHits + ", Cache Misses: " + cacheMisses + " := " + cacheEfficiency + "%");
+			notifyNewState("Cache Size: " + solver.getCacheSize() + ", Cache Hits: " + cacheHits + ", Cache Misses: " + cacheMisses + " := " + cacheEfficiency + "%");
 		}
 	}
 	
@@ -192,6 +195,10 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 				}
 			} else {
 				roundsWithoutNewTestCase++;
+			}
+			
+			if(recommendations.size() % 20 == 0) {
+				notifyNewState(recommendations.size() + " test cases generated, " + uncoveredTupels.size() + " tupels remaining...");
 			}
 		} while(uncoveredTupels.size() > 0 && roundsWithoutNewTestCase < maxEmptyRounds);
 	}
@@ -292,7 +299,7 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 			if(bestV.size() == 0) {
 //				solver.enableLogging();
 //				solver.isAlwaysForbidden(listV, leafsByRoot);
-				System.out.println("Error selecting value for " + fi + " already chosen values: " + listV + ", possible values in this step are " + valuesForFi);
+				notifyNewState("Error selecting value for " + fi + " already chosen values: " + listV + ", possible values in this step are " + valuesForFi);
 				return null;
 			} else {
 				listV.add(bestV.get(randomGenerator.nextInt(bestV.size())));

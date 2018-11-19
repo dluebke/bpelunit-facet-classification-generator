@@ -10,6 +10,7 @@ import org.apache.commons.cli.PosixParser;
 import net.bpelunit.suitegenerator.config.Config;
 import net.bpelunit.suitegenerator.recommendation.IConfigurableRecommender;
 import net.bpelunit.suitegenerator.recommendation.IRecommender;
+import net.bpelunit.suitegenerator.recommendation.IRecommenderStatusListener;
 import net.bpelunit.suitegenerator.recommendation.RecommenderFactory;
 import net.bpelunit.suitegenerator.recommendation.permut.Permutation;
 
@@ -59,6 +60,16 @@ public class Executor {
 			recommender = recommenderFactory.getRecommenderByClassname(cmd.getOptionValue("recommenderclass"));
 		} else if (cmd.hasOption("recommender")) {
 			recommender = recommenderFactory.getRecommenderByName(cmd.getOptionValue("recommender"));
+		}
+		
+		if(recommender != null) {
+			recommender.addRecommenderStatusListener(new IRecommenderStatusListener() {
+				
+				@Override
+				public void newState(String description) {
+					System.out.println(description);
+				}
+			});
 		}
 		
 		if(cmd.hasOption("n")) {
