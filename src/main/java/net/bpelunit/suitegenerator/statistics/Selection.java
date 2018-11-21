@@ -67,5 +67,10 @@ public class Selection implements Copyable<Selection>, IOperand {
 	public int compareTo(Selection sel) {
 		return this.getSelection().getName().compareTo(sel.getSelection().getName());
 	}
+	
+	@Override
+	public String getVariableName() {
+		return rootElement.getName();
+	}
 
 }

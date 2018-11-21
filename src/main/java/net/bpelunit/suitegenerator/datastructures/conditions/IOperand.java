@@ -4,4 +4,5 @@ public interface IOperand {
 
 	public String getOpName();
 
+	public String getVariableName();
 }

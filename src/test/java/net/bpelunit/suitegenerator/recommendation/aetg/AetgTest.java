@@ -13,7 +13,6 @@ import net.bpelunit.suitegenerator.datastructures.classification.ClassificationV
 import net.bpelunit.suitegenerator.datastructures.conditions.AND;
 import net.bpelunit.suitegenerator.datastructures.conditions.OperandCondition;
 import net.bpelunit.suitegenerator.recommendation.Recommendation;
-import net.bpelunit.suitegenerator.recommendation.aetg.Aetg;
 import net.bpelunit.suitegenerator.statistics.IStatistics;
 import net.bpelunit.suitegenerator.statistics.Statistics;
 
@@ -36,6 +35,7 @@ public class AetgTest {
 			}
 		}
 		classification.setTree(tree);
+		classification.setLeaves(variableSelections);
 		IStatistics stat = new Statistics();
 		stat.update(variableSelections, null);
 		aetg.setClassificationData(stat , null, classification);
@@ -65,13 +65,14 @@ public class AetgTest {
 			}
 		}
 		classification.setTree(tree);
+		classification.setLeaves(variableSelections);
 		IStatistics stat = new Statistics();
 		stat.update(variableSelections, null);
 		aetg.setClassificationData(stat , null, classification);
 		
 		List<Recommendation> recommendations = aetg.getRecommendations();
 		// TODO Check n-coverage
-//		System.out.println(recommendations);
+		System.out.println(recommendations);
 //		assertEquals(27, recommendations.size());
 	}
 	

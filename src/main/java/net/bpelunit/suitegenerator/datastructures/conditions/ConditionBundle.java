@@ -1,6 +1,7 @@
 package net.bpelunit.suitegenerator.datastructures.conditions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -81,5 +82,99 @@ public class ConditionBundle implements ICondition {
 			}
 		}
 		return true;
+	}
+	
+	@Override
+	public boolean canEvaluate(List<? extends IOperand> l, IOperand op) {
+		for(ICondition c : conditions) {
+			if(!c.canEvaluate(l, op)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public ConditionBundle clone() {
+		ConditionBundle result = new ConditionBundle();
+		for(ICondition c : conditions) {
+			result.conditions.add(c.clone());
+		}
+		
+		return result;
+	}
+	
+	@Override
+	public ICondition optimize(List<? extends IOperand> ops) {
+		List<ICondition> newConditions = new ArrayList<>();
+		for(ICondition c : conditions) {
+			ICondition c2 = c.clone().optimize(ops);
+			if(c2.canEvaluate(ops)) {
+				if(c2.evaluate(ops)) {
+					return new TRUE();
+				} else {
+					// skip this condition because it is always false
+				}
+			} else {
+				newConditions.add(c2);
+			}
+		}
+		
+		if(newConditions.size() == 0) {
+			return FALSE.INSTANCE;
+		} else {
+			ConditionBundle result = new ConditionBundle();
+			result.conditions = newConditions;
+			return result;
+		}
+	}
+	
+	@Override
+	public ICondition optimize(List<? extends IOperand> ops, IOperand additionalOp) {
+		List<ICondition> newConditions = new ArrayList<>();
+		for(ICondition c : conditions) {
+			ICondition c2 = c.optimize(ops, additionalOp);
+			if(c2.canEvaluate(ops, additionalOp)) {
+				if(c2.evaluate(ops, additionalOp)) {
+					return new TRUE();
+				} else {
+					// skip this condition because it is always false
+				}
+			} else {
+				newConditions.add(c2);
+			}
+		}
+		
+		ConditionBundle result = new ConditionBundle();
+		result.conditions = newConditions;
+		return result;
+	}
+	@Override
+	public boolean isAlwaysFalse() {
+		List<IOperand> empty = Collections.emptyList();
+		return canEvaluate(empty) && !evaluate(empty);
+	}
+	
+	@Override
+	public boolean isAlwaysTrue() {
+		List<IOperand> empty = Collections.emptyList();
+		return canEvaluate(empty) && evaluate(empty);
+	}
+	
+	@Override
+	public void getVariableNames(Set<String> variables) {
+		for(ICondition c : conditions) {
+			c.getVariableNames(variables);
+		}
+	}
+	
+	@Override
+	public String getAnyVariable() {
+		for(ICondition c : conditions) {
+			String result = c.getAnyVariable();
+			if(result != null) {
+				return result;
+			}
+		}
+		return null;
 	}
 }

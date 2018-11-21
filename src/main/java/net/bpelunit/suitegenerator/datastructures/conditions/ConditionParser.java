@@ -102,35 +102,6 @@ public class ConditionParser {
 		return null;
 	}
 
-	// TODO Leerzeichen nach Klammern könnten leere Strings beim Splitten auslösen?
-	public static void main(String[] args) {
-
-		System.out.println(new ConditionParser().parse("A AND B AND NOT C AND D"));
-
-		System.out.println(new ConditionParser().parse("(Betrag:ZuGroß)"));
-		System.out.println("==================");
-		System.out.println(new ConditionParser().parse("Betrag:ZuGroß AND (Bestandskunde AND BLA)"));
-
-		System.out.println("==================");
-		System.out.println("(Blubb XOR Bestandskunde:Ja) AND (ZahlPDFs:Größer1 OR Bla) AND NOT Betrag:ZuGroß");
-		System.out.println(new ConditionParser()
-				.parse("(Blubb XOR Bestandskunde:Ja) AND (ZahlPDFs:Größer1 OR Bla) AND NOT Betrag:ZuGroß"));
-
-		System.out.println("==================");
-		System.out.println("Bestandskunde:Ja AND (ZahlPDFs:Größer1 OR Bla) AND NOT Betrag:ZuGroß");
-		System.out.println(
-				new ConditionParser().parse("Bestandskunde:Ja AND (ZahlPDFs:Größer1 OR Bla) AND NOT Betrag:ZuGroß"));
-
-		System.out.println("==================");
-		System.out.println("Bestandskunde:Ja AND NOT (ZahlPDFs:Größer1 OR Betrag:ZuGroß)");
-		System.out.println(new ConditionParser().parse("Bestandskunde:Ja AND NOT (ZahlPDFs:Größer1 OR Betrag:ZuGroß)"));
-
-		System.out.println("==================");
-		System.out.println("Bestandskunde:Ja AND NOT Betrag:ZuGroß AND (ZahlPDFs:Größer1 OR Bla)");
-		System.out.println(
-				new ConditionParser().parse("Bestandskunde:Ja AND NOT Betrag:ZuGroß AND (ZahlPDFs:Größer1 OR Bla)"));
-	}
-
 }
 
 class OpenBracket implements ICondition {
@@ -169,6 +140,45 @@ class OpenBracket implements ICondition {
 	public boolean canEvaluate(List<? extends IOperand> l) {
 		return true;
 	}
+	
+	@Override
+	public boolean canEvaluate(List<? extends IOperand> l, IOperand op) {
+		return true;
+	}
+	
+	@Override
+	public OpenBracket clone() {
+		return new OpenBracket();
+	}
+	
+	@Override
+	public ICondition optimize(List<? extends IOperand> ops) {
+		return this;
+	}
+	
+	@Override
+	public ICondition optimize(List<? extends IOperand> ops, IOperand additionalOp) {
+		return this;
+	}
+	
+	@Override
+	public boolean isAlwaysFalse() {
+		return false;
+	}
+	
+	@Override
+	public boolean isAlwaysTrue() {
+		return false;
+	}
+	
+	@Override
+	public void getVariableNames(Set<String> variables) {
+	}
+	
+	@Override
+	public String getAnyVariable() {
+		return null;
+	}
 }
 
 class CloseBracket implements ICondition {
@@ -206,5 +216,44 @@ class CloseBracket implements ICondition {
 	@Override
 	public boolean canEvaluate(List<? extends IOperand> l) {
 		return true;
+	}
+	
+	@Override
+	public boolean canEvaluate(List<? extends IOperand> l, IOperand op) {
+		return true;
+	}
+	
+	@Override
+	public CloseBracket clone() {
+		return new CloseBracket();
+	}
+	
+	@Override
+	public ICondition optimize(List<? extends IOperand> ops) {
+		return this;
+	}
+	
+	@Override
+	public ICondition optimize(List<? extends IOperand> ops, IOperand additionalOp) {
+		return this;
+	}
+	
+	@Override
+	public boolean isAlwaysFalse() {
+		return false;
+	}
+	
+	@Override
+	public boolean isAlwaysTrue() {
+		return false;
+	}
+
+	@Override
+	public void getVariableNames(Set<String> variables) {
+	}
+	
+	@Override
+	public String getAnyVariable() {
+		return null;
 	}
 }

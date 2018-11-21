@@ -1,16 +1,20 @@
 package net.bpelunit.suitegenerator.datastructures.conditions;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class OperandCondition implements ICondition {
+public class OperandCondition extends AbstractCondition implements ICondition {
 
 	private String tag;
+	private String variableName;
 
+	private OperandCondition() {
+	}
+	
 	public OperandCondition(String tag) {
 		this.tag = tag.trim();
+		this.variableName = this.tag.split(":")[0];
 	}
 
 	public ICondition visit(ConditionParser parser) {
@@ -26,39 +30,14 @@ public class OperandCondition implements ICondition {
 	@Override
 	public boolean evaluate(List<? extends IOperand> ops) {
 		for (IOperand op : ops) {
-			if (op.getOpName().trim().equalsIgnoreCase(tag)) {
+			if (op.getOpName().equalsIgnoreCase(tag)) {
 				return true;
+			}
+			if(belongsToSameVariable(op)) {
+				return false;
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Returns true if any of the given Operands has the same opName
-	 * 
-	 * @param ops
-	 * @return
-	 */
-	@Override
-	public boolean evaluate(List<? extends IOperand> ops, IOperand additional) {
-		List<IOperand> neu = new ArrayList<>(ops);
-		neu.add(additional);
-		return evaluate(neu);
-	}
-
-	/**
-	 * Returns true if any of the given Operands has the same opName
-	 * 
-	 * @param ops
-	 * @return
-	 */
-	@Override
-	public boolean evaluate(IOperand... ops) {
-		List<IOperand> neu = new ArrayList<>();
-		for (IOperand op : ops) {
-			neu.add(op);
-		}
-		return evaluate(neu);
 	}
 
 	@Override
@@ -80,10 +59,49 @@ public class OperandCondition implements ICondition {
 	@Override
 	public boolean canEvaluate(List<? extends IOperand> l) {
 		for(IOperand i : l) {
-			if(i.getOpName().equals(tag)) {
+			if(i.getOpName().equalsIgnoreCase(tag) || belongsToSameVariable(i)) {
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public OperandCondition clone() {
+		OperandCondition result = new OperandCondition();
+		result.tag = tag;
+		result.variableName = variableName;
+		return result;
+	}
+	
+	@Override
+	public ICondition optimize(List<? extends IOperand> ops) {
+		if(canEvaluate(ops)) {
+			if(evaluate(ops)) {
+				return TRUE.INSTANCE;
+			} else {
+				return FALSE.INSTANCE;
+			}
+		} else {
+			return this;
+		}
+	}
+	
+	private boolean belongsToSameVariable(IOperand i) {
+		return this.variableName.equalsIgnoreCase(i.getVariableName());
+	}
+
+	public String getVariableName() {
+		return variableName;
+	}
+	
+	@Override
+	public void getVariableNames(Set<String> variables) {
+		variables.add(variableName);
+	}
+	
+	@Override
+	public String getAnyVariable() {
+		return variableName;
 	}
 }

@@ -22,5 +22,17 @@ public interface ICondition {
 	Set<OperandCondition> getVariables();
 
 	boolean canEvaluate(List<? extends IOperand> l);
+	boolean canEvaluate(List<? extends IOperand> l, IOperand op);
 
+	ICondition clone();
+	
+	ICondition optimize(List<? extends IOperand> ops);
+
+	ICondition optimize(List<? extends IOperand> ops, IOperand additionalOp);
+
+	boolean isAlwaysTrue();
+	boolean isAlwaysFalse();
+
+	void getVariableNames(Set<String> variables);
+	String getAnyVariable();
 }

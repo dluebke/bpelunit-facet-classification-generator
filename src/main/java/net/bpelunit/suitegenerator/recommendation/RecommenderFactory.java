@@ -39,7 +39,7 @@ public class RecommenderFactory {
 	}
 
 	public IRecommender getRecommenderByClassname(String className) throws Exception {
-		return (IRecommender) Class.forName(className).newInstance();
+		return (IRecommender) Class.forName(className).getDeclaredConstructor().newInstance();
 	}
 	
 	public List<String> getAvailableRecommenderNames() {
