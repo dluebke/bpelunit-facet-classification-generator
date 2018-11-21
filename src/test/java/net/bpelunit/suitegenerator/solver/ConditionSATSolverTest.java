@@ -83,40 +83,6 @@ public class ConditionSATSolverTest {
 		assertTrue(solver.isAlwaysForbidden(variablesChosen));
 	}
 
-	@Test 
-	public void testMe() throws Exception {
-		File classificationFile = new File("C:/temp/virtualbox-shared/projects/ch.terravis.egvt.process.bf.depotandapprovalchecker/src/test/classification/classification.xls");
-		XLSReader reader = new XLSReader(classificationFile);
-		ICodeFragmentReader fragmentReader = ReaderFactory.findFragmentReader(classificationFile.getParentFile());
-		Statistics stat = new Statistics();
-		reader.readAndEnrich(fragmentReader, stat);
-		stat.update(reader.getClassification().getAllClassificationTreeLeaves(), fragmentReader.getVariables());
-		
-		ICondition forbidden = reader.getClassification().getForbidden();
-		ConditionSATSolver solver = new ConditionSATSolver(forbidden, new HashMap<>(stat.getRootVariables()));
-		solver.enableLogging();
-		
-		List<Literal> variablesChosen = Arrays.asList(
-				new Literal("Approval:ok:RetransferRequired:NOKUnallowedDepot"),
-				new Literal("AssetSpecification:EREID"), 
-				new Literal("ProcessStartResult:NotAllowedDepotCombination"),
-				new Literal("Asset1:None"),
-				new Literal("Asset2DepotDifferentFromAsset1Depot:yes"),
-				new Literal("UNUSEDAllowed:no")
-			);
-		
-		System.out.println(forbidden.evaluate(
-				new Literal("Approval:ok:RetransferRequired:NOKUnallowedDepot"), 
-				new Literal("AssetSpecification:EREID"),
-				new Literal("ProcessStartResult:NotAllowedDepotCombination"),
-				new Literal("Asset1:None"),
-				new Literal("Asset2DepotDifferentFromAsset1Depot:yes"),
-				new Literal("UNUSEDAllowed:no"), 
-				new Literal("Asset2:None")
-				));
-		
-		assertTrue(solver.isAlwaysForbidden(variablesChosen));
-	}
 	
 	@Test
 	public void testLargeProblem() throws Exception {
