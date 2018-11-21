@@ -2,9 +2,11 @@ package net.bpelunit.suitegenerator.solver;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;mport java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import net.bpelunit.suires.classification.ClassificationVariable;
+import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariable;
 import net.bpelunit.suitegenerator.datastructures.conditions.ICondition;
 import net.bpelunit.suitegenerator.datastructures.conditions.IOperand;
 
