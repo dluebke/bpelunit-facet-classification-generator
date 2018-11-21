@@ -18,7 +18,7 @@ import net.bpelunit.suitegenerator.datastructures.conditions.IOperand;
 import net.bpelunit.suitegenerator.recommendation.IConfigurableRecommender;
 import net.bpelunit.suitegenerator.recommendation.Recommendation;
 import net.bpelunit.suitegenerator.recommendation.Recommender;
-import net.bpelunit.suitegenerator.solver.ConditionSATSolver2;
+import net.bpelunit.suitegenerator.solver.ConditionSATSolver;
 import net.bpelunit.suitegenerator.statistics.Selection;
 
 public class Aetg extends Recommender implements IConfigurableRecommender {
@@ -40,7 +40,7 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 	private Random randomGenerator;
 	private int maxEmptyRounds = 50;
 	private long seed = System.currentTimeMillis();
-	private ConditionSATSolver2 solver = new ConditionSATSolver2();
+	private ConditionSATSolver solver = new ConditionSATSolver();
 	private Map<String, List<?extends IOperand>> leafsByRootAsString;
 	private Map<String,ClassificationVariable> rootsByName;
 	

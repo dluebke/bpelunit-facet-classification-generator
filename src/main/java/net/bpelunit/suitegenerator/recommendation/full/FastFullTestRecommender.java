@@ -13,7 +13,7 @@ import net.bpelunit.suitegenerator.datastructures.conditions.ICondition;
 import net.bpelunit.suitegenerator.datastructures.conditions.IOperand;
 import net.bpelunit.suitegenerator.recommendation.Recommendation;
 import net.bpelunit.suitegenerator.recommendation.Recommender;
-import net.bpelunit.suitegenerator.solver.ConditionSATSolver2;
+import net.bpelunit.suitegenerator.solver.ConditionSATSolver;
 import net.bpelunit.suitegenerator.statistics.Selection;
 
 public class FastFullTestRecommender extends Recommender {
@@ -21,7 +21,7 @@ public class FastFullTestRecommender extends Recommender {
 	private List<ClassificationVariable> roots = new ArrayList<>();
 	private Map<ClassificationVariable, List<?extends IOperand>> leafsByRoot;
 	private Map<String,ClassificationVariable> classificationVariablesByName;
-	private ConditionSATSolver2 solver = new ConditionSATSolver2();
+	private ConditionSATSolver solver = new ConditionSATSolver();
 	
 	@Override
 	protected void createRecommendations() {
