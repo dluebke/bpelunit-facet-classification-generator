@@ -2,6 +2,7 @@ package net.bpelunit.suitegenerator.recommendation.aetg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,7 +11,7 @@ import net.bpelunit.suitegenerator.datastructures.conditions.IOperand;
 
 public class TupelBucket {
 
-	private List<List<?extends IOperand>> allTupels = new ArrayList<>();
+	private Set<List<?extends IOperand>> allTupels = new HashSet<>();
 
 	private Map<IOperand, List<List<?extends IOperand>>> buckets = new HashMap<>();
 
@@ -32,15 +33,16 @@ public class TupelBucket {
 	}
 	
 	public void add(List<?extends IOperand> tupel) {
-		for(IOperand o : tupel) {
-			List<List<? extends IOperand>> bucket = buckets.get(o);
-			if(bucket == null) {
-				bucket = new ArrayList<>();
-				buckets.put(o, bucket);
+		if(allTupels.add(tupel)) {
+			for(IOperand o : tupel) {
+				List<List<? extends IOperand>> bucket = buckets.get(o);
+				if(bucket == null) {
+					bucket = new ArrayList<>();
+					buckets.put(o, bucket);
+				}
+				bucket.add(tupel);
 			}
-			bucket.add(tupel);
 		}
-		allTupels.add(tupel);
 	}
 	
 	public void remove(List<?extends IOperand> tupel) {

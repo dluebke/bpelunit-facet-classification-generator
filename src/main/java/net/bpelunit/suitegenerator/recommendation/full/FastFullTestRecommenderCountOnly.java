@@ -18,6 +18,8 @@ public class FastFullTestRecommenderCountOnly extends Recommender {
 	private List<ClassificationVariable> roots = new ArrayList<>();
 	private Map<ClassificationVariable, List<Selection>> leafsByRoot;
 	private long testCasesToGenerate = 0;
+	private long lastTestCasesToGenerateUpdateInterval = 10000000;
+	private long lastTestCasesToGenerateUpdate = lastTestCasesToGenerateUpdateInterval;
 	private Map<String,ClassificationVariable> classificationVariablesByName;
 	
 	@Override
@@ -71,6 +73,10 @@ public class FastFullTestRecommenderCountOnly extends Recommender {
 			}
 		} else {
 			testCasesToGenerate += variableChoicesNotInForbidden;
+			if(testCasesToGenerate > lastTestCasesToGenerateUpdate) {
+				notifyNewState("Found " + testCasesToGenerate + " test cases so far");
+				lastTestCasesToGenerateUpdate += lastTestCasesToGenerateUpdateInterval;
+			}
 		}
 	}
 }

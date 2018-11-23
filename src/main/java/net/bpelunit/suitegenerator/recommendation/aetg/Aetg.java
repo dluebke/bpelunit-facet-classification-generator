@@ -113,9 +113,9 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 		notifyNewState("Generate all valid tupels");
 		long t1 = System.currentTimeMillis();
 		List<List<?extends IOperand>> uncoveredTupels = generateAllValidTupels(new ArrayList<>(roots));
-		long t2 = System.currentTimeMillis();
-		notifyNewState("Generated " + uncoveredTupels.size() + " tupels");
 		TupelBucket uncoveredTupelBucket = new TupelBucket(uncoveredTupels);
+		long t2 = System.currentTimeMillis();
+		notifyNewState("Generated " + uncoveredTupels.size() + " tupels in " + (t2-t1) + "ms");
 		
 		createRecommendations(uncoveredTupelBucket);
 		long t3 = System.currentTimeMillis();
