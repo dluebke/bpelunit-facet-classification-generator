@@ -112,11 +112,11 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 
 		notifyNewState("Generate all valid tupels");
 		long t1 = System.currentTimeMillis();
-		List<List<?extends IOperand>> uncoveredTupels = generateAllValidTupels(new ArrayList<>(roots));
+		List<List<?extends IOperand>> uncoveredTupels = solver.generateAllValidTupels(leafsByRoot, forbidden, tCoverage);
 		TupelBucket uncoveredTupelBucket = new TupelBucket(uncoveredTupels);
 		long t2 = System.currentTimeMillis();
 		notifyNewState("Generated " + uncoveredTupels.size() + " tupels in " + (t2-t1) + "ms");
-		
+
 		createRecommendations(uncoveredTupelBucket);
 		long t3 = System.currentTimeMillis();
 		notifyNewState("Generated " + recommendations.size() + " test cases in " + (t3-t1) + "ms [" + (t2-t1) + "," + (t3-t2) + "]");
@@ -336,47 +336,5 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 		}
 		return count;
 		
-	}
-	
-	List<List<?extends IOperand>> generateAllValidTupels(List<ClassificationVariable> remainingRoots) {
-		List<List<?extends IOperand>> result = new ArrayList<>();
-		
-		for(List<?extends IOperand> o : generateAllTupels(new ArrayList<>(remainingRoots))) {
-			if(o.size() == tCoverage && !isAlwaysForbidden(o)) {
-				result.add(o);
-			}
-		}
-		
-		return result;
-	}
-	
-	List<List<?extends IOperand>> generateAllTupels(List<ClassificationVariable> remainingRoots) {
-		List<List<?extends IOperand>> result = new ArrayList<>();
-		if(remainingRoots.size() > 0) {
-			ClassificationVariable currentRoot = remainingRoots.remove(0);
-			List<List<?extends IOperand>> lowerLevelTupels = generateAllTupels(remainingRoots);
-			
-			for(List<?extends IOperand> tupel : lowerLevelTupels) {
-				result.add(tupel);
-				if(tupel.size() < tCoverage) {
-					for(IOperand newValue : leafsByRoot.get(currentRoot)) {
-						List<IOperand> newTupel = new ArrayList<>(tupel);
-						newTupel.add(newValue);
-						if(!isAlwaysForbidden(newTupel)) {
-							result.add(newTupel);
-						}
-					}
-				}
-			}
-			for(IOperand newValue : leafsByRoot.get(currentRoot)) {
-				List<IOperand> newTupel = Arrays.asList(newValue);
-				if(!isAlwaysForbidden(newTupel)) {
-					result.add(newTupel);
-				}
-			}
-		} else {
-			return Collections.emptyList();
-		}
-		return result;
 	}
 }

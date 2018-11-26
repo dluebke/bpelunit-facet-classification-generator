@@ -38,7 +38,7 @@ public class AetgTest {
 		classification.setLeaves(variableSelections);
 		IStatistics stat = new Statistics();
 		stat.update(variableSelections, null);
-		aetg.setClassificationData(stat , null, classification);
+		aetg.setClassificationData(stat, null, classification);
 		
 		aetg.setConfigurationParameter("seed=1513595980565,M=50");
 		List<Recommendation> recommendations = aetg.getRecommendations();
