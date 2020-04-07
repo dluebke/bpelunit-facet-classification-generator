@@ -4,8 +4,9 @@ import java.io.File;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
 
 import net.bpelunit.suitegenerator.config.Config;
 import net.bpelunit.suitegenerator.recommendation.IConfigurableRecommender;
@@ -36,9 +37,16 @@ public class Executor {
 		options.addOption("n", true, "Test Cases to select with suitable recommender, e.g. random recommender=test suites to select, AETG etc. t-level, ...");
 		options.addOption("recommenderclass", true, "A full qualified class name of the recommender to use. Overrides recommender");
 		options.addOption("ignoreusertestcases", false, "Ignore all user-defined test cases. Only usable with -g");
+		options.addOption("help", false, "Shows help and aborts");
 		
-		CommandLineParser parser = new PosixParser();
+		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);
+		
+		if(cmd.hasOption("help")) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("facet-classification-generator", options);
+			System.exit(1);
+		}
 		
 		if(cmd.hasOption("r")) {
 			createRecommendations = true;
