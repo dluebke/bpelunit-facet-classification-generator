@@ -46,8 +46,7 @@ public class XLSReader implements IClassificationReader {
 
 	@Override
 	public void readAndEnrich(ICodeFragmentReader fragmentReader, IStatistics stat) {
-		try {
-			Workbook wb = WorkbookFactory.create(file);
+		try (Workbook wb = WorkbookFactory.create(file, null, true)) {
 			Sheet classification = wb.getSheetAt(0);
 			int maxRow = classification.getLastRowNum();
 			int tmp = readForbidden(classification, maxRow);
