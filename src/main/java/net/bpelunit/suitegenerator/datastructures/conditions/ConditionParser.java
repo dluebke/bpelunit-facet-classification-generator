@@ -1,5 +1,6 @@
 package net.bpelunit.suitegenerator.datastructures.conditions;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,16 +13,21 @@ import java.util.Set;
 public class ConditionParser {
 
 	private int position = 0;
-	private String[] parts;
 	private List<ICondition> conds = new LinkedList<>();
 
 	public ICondition parse(String cond) {
+		position = 0;
+		conds.clear();
 		StringBuilder effectiveCond = new StringBuilder();
 		cond = cond.replaceAll("\r", "\n");
 		String[] lines = cond.split("\n");
 		for(String line : lines) {
+			int posOfComment = line.indexOf('#');
+			if(posOfComment >= 0) {
+				line = line.substring(0, posOfComment);
+			}
 			line = line.trim();
-			if(!("".equals(line) || line.startsWith("#"))) {
+			if(!("".equals(line))) {
 				effectiveCond.append(line).append(" ");
 			}
 		}
@@ -32,25 +38,25 @@ public class ConditionParser {
 		cond = cond.replace("(", "( ");
 		cond = cond.replace(")", " )");
 		cond = cond.replaceAll("\\s+", " ");
-		parts = cond.split(" ");
-		parseConds();
+		String[] parts = cond.split(" ");
+		parseConds(parts);
 		return handleCondition(conds.get(0));
 		// parseBracket(0, cond.length() - 1);
 	}
 
-	private void parseConds() {
+	private void parseConds(String[] parts) {
 		for (String part : parts) {
 			if (part.equals("(")) {
 				conds.add(new OpenBracket());
 			} else if (part.equals(")")) {
 				conds.add(new CloseBracket());
-			} else if (part.equals("AND")) {
+			} else if (part.equals("AND") || part.equals("&&")) {
 				conds.add(new AND());
-			} else if (part.equals("OR")) {
+			} else if (part.equals("OR") || part.equals("||")) {
 				conds.add(new OR());
-			} else if (part.equals("XOR")) {
+			} else if (part.equals("XOR") || part.equals("^")) {
 				conds.add(new XOR());
-			} else if (part.equals("NOT")) {
+			} else if (part.equals("NOT") || part.equals("!")) {
 				conds.add(new NOT());
 			} else {
 				conds.add(new OperandCondition(part));
@@ -179,6 +185,11 @@ class OpenBracket implements ICondition {
 	public String getAnyVariable() {
 		return null;
 	}
+	
+	@Override
+	public Set<String> getClassificationVariableNames() {
+		return Collections.emptySet();
+	}
 }
 
 class CloseBracket implements ICondition {
@@ -255,5 +266,10 @@ class CloseBracket implements ICondition {
 	@Override
 	public String getAnyVariable() {
 		return null;
+	}
+
+	@Override
+	public Set<String> getClassificationVariableNames() {
+		return Collections.emptySet();
 	}
 }
