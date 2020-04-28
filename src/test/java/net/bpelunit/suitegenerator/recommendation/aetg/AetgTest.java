@@ -11,6 +11,7 @@ import net.bpelunit.suitegenerator.datastructures.classification.ClassificationT
 import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariable;
 import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariableSelection;
 import net.bpelunit.suitegenerator.datastructures.conditions.AND;
+import net.bpelunit.suitegenerator.datastructures.conditions.ConditionBundle;
 import net.bpelunit.suitegenerator.datastructures.conditions.OperandCondition;
 import net.bpelunit.suitegenerator.recommendation.Recommendation;
 import net.bpelunit.suitegenerator.statistics.IStatistics;
@@ -94,7 +95,9 @@ public class AetgTest {
 			}
 		}
 		classification.setTree(tree);
-		classification.setForbidden(new AND(new OperandCondition("A:1"), new OperandCondition("B:1")));
+		ConditionBundle forbidden = new ConditionBundle();
+		forbidden.addCondition(new AND(new OperandCondition("A:1"), new OperandCondition("B:1")));
+		classification.setForbidden(forbidden);
 		
 		classification.setLeaves(variableSelections);
 		IStatistics stat = new Statistics();

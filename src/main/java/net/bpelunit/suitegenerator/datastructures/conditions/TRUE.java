@@ -8,6 +8,9 @@ public class TRUE implements ICondition {
 
 	public static final TRUE INSTANCE = new TRUE();
 	
+	private TRUE() {
+	}
+	
 	@Override
 	public boolean evaluate(List<? extends IOperand> ops) {
 		return true;
@@ -45,7 +48,7 @@ public class TRUE implements ICondition {
 
 	@Override
 	public TRUE clone() {
-		return new TRUE();
+		return INSTANCE;
 	}
 
 	@Override
@@ -81,5 +84,10 @@ public class TRUE implements ICondition {
 	@Override
 	public String getAnyVariable() {
 		return null;
+	}
+	
+	@Override
+	public Set<String> getClassificationVariableNames() {
+		return Collections.emptySet();
 	}
 }

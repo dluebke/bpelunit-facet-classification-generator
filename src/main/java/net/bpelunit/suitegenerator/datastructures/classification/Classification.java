@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.bpelunit.suitegenerator.datastructures.conditions.ConditionBundle;
 import net.bpelunit.suitegenerator.datastructures.conditions.ICondition;
 import net.bpelunit.suitegenerator.datastructures.testcases.TestCase;
 
@@ -11,7 +12,7 @@ public class Classification {
 
 	private List<TestCase> testCases = new LinkedList<>();
 	private ClassificationTree tree;
-	private ICondition forbidden;
+	private ConditionBundle forbidden;
 	private Collection<ClassificationVariableSelection> leaves;
 
 	public List<TestCase> getTestCases() {
@@ -30,11 +31,11 @@ public class Classification {
 		this.tree = tree;
 	}
 
-	public ICondition getForbidden() {
+	public ConditionBundle getForbidden() {
 		return forbidden;
 	}
 
-	public void setForbidden(ICondition forbidden) {
+	public void setForbidden(ConditionBundle forbidden) {
 		this.forbidden = forbidden;
 	}
 

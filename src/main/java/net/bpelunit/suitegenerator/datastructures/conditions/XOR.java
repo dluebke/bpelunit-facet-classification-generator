@@ -68,28 +68,39 @@ public class XOR extends AbstractCondition implements ICondition {
 	
 	@Override
 	public ICondition optimize(List<? extends IOperand> ops) {
-		first = first.optimize(ops);
-		second = second.optimize(ops);
+		ICondition newFirst = first.optimize(ops);
+		ICondition newSecond = second.optimize(ops);
 		
-		if(canEvaluate(ops)) {
-			if(evaluate(ops)) {
+		
+		if(
+			(newFirst.isAlwaysTrue() && newSecond.isAlwaysFalse())
+			||
+			(newFirst.isAlwaysFalse() && newSecond.isAlwaysTrue())
+			) {
 				return TRUE.INSTANCE;
-			} else {
+		}
+		if(
+			(newFirst.isAlwaysTrue() && newSecond.isAlwaysTrue())
+			||
+			(newFirst.isAlwaysFalse() && newSecond.isAlwaysFalse()) 
+			) {
 				return FALSE.INSTANCE;
-			}
+		}
+		if(newFirst.isAlwaysFalse()) {
+			return newSecond;
+		}
+		if(newFirst.isAlwaysTrue()) {
+			return new NOT(newSecond);
+		}
+		if(newSecond.isAlwaysFalse()) {
+			return newFirst;
+		}
+		if(newSecond.isAlwaysTrue()) {
+			return new NOT(newFirst);
+		}
+		if(first != newFirst || second != newSecond) {
+			return new XOR(first, second);
 		} else {
-			if(first.isAlwaysFalse()) {
-				return second;
-			}
-			if(first.isAlwaysTrue()) {
-				return new NOT(second);
-			}
-			if(second.isAlwaysFalse()) {
-				return first;
-			}
-			if(second.isAlwaysTrue()) {
-				return new NOT(first);
-			}
 			return this;
 		}
 	}
@@ -110,5 +121,15 @@ public class XOR extends AbstractCondition implements ICondition {
 		} else {
 			return second.getAnyVariable();
 		}
+	}
+
+	@Override
+	public Set<String> getClassificationVariableNames() {
+		Set<String> result = new HashSet<>();
+		
+		result.addAll(first.getClassificationVariableNames());
+		result.addAll(second.getClassificationVariableNames());
+		
+		return result;
 	}
 }

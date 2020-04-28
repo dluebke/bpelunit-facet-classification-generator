@@ -74,17 +74,24 @@ public class OR extends AbstractCondition implements ICondition {
 	
 	@Override
 	public ICondition optimize(List<? extends IOperand> ops) {
-		first = first.optimize(ops);
-		second = second.optimize(ops);
+		ICondition newFirst = first.optimize(ops);
+		if(newFirst.isAlwaysTrue()) {
+			return TRUE.INSTANCE;
+		}
 		
-		if(first.isAlwaysTrue() || second.isAlwaysTrue()) {
-			return new TRUE();
-		} else if(first.isAlwaysFalse()) {
-			return second;
-		} else if(second.isAlwaysFalse()) {
-			return first;
+		ICondition newSecond = second.optimize(ops);
+		if(newSecond.isAlwaysTrue()) {
+			return TRUE.INSTANCE;
+		} else if(newFirst.isAlwaysFalse()) {
+			return newSecond;
+		} else if(newSecond.isAlwaysFalse()) {
+			return newFirst;
 		} else {
-			return this;
+			if(first != newFirst || second != newSecond) {
+				return new OR(newFirst, newSecond);
+			} else {
+				return this;
+			}
 		}
 	}
 	
@@ -104,5 +111,15 @@ public class OR extends AbstractCondition implements ICondition {
 		} else {
 			return second.getAnyVariable();
 		}
+	}
+
+	@Override
+	public Set<String> getClassificationVariableNames() {
+		Set<String> result = new HashSet<>();
+		
+		result.addAll(first.getClassificationVariableNames());
+		result.addAll(second.getClassificationVariableNames());
+		
+		return result;
 	}
 }

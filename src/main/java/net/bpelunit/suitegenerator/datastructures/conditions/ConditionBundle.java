@@ -1,15 +1,28 @@
 package net.bpelunit.suitegenerator.datastructures.conditions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class ConditionBundle implements ICondition {
 
-	private List<ICondition> conditions = new LinkedList<>();
+	private final List<ICondition> conditions = new LinkedList<>();
+	private final Map<String, List<ICondition>> conditionsForClassificationVariable = new HashMap<>();
+	
+	public ConditionBundle() {
+	}
+	
+	public ConditionBundle(ICondition... conditions) {
+		for(ICondition c : conditions) {
+			addCondition(c);
+		}
+	}
 
 	/**
 	 * Returns true if any of the contained conditions returns true
@@ -53,6 +66,30 @@ public class ConditionBundle implements ICondition {
 
 	public void addCondition(ICondition add) {
 		this.conditions.add(add);
+		
+		Set<String> classificationVariableNames = add.getClassificationVariableNames();
+		if(classificationVariableNames.size() > 0) {
+			for(String cvName : classificationVariableNames) {
+				addConditionForClassificationVariable(cvName, add);
+			}
+		} else {
+			addConditionForClassificationVariable("", add);
+		}
+	}
+
+	private void addConditionForClassificationVariable(String cvName, ICondition c) {
+		List<ICondition> conditionsForCv = conditionsForClassificationVariable.get(cvName);
+		if(conditionsForCv == null) {
+			conditionsForCv = new ArrayList<>();
+			conditionsForClassificationVariable.put(cvName, conditionsForCv);
+		}
+		conditionsForCv.add(c);
+	}
+	
+	public void addConditions(Collection<?extends ICondition> add) {
+		for(ICondition c : add) {
+			addCondition(c);
+		}
 	}
 	
 	public List<ICondition> getConditions() {
@@ -97,20 +134,23 @@ public class ConditionBundle implements ICondition {
 	public ConditionBundle clone() {
 		ConditionBundle result = new ConditionBundle();
 		for(ICondition c : conditions) {
-			result.conditions.add(c.clone());
+			result.addCondition(c.clone());
 		}
 		
 		return result;
 	}
 	
 	@Override
-	public ICondition optimize(List<? extends IOperand> ops) {
+	public ConditionBundle optimize(List<? extends IOperand> ops) {
+		boolean conditionHasBeenOptimized = false;
+		
 		List<ICondition> newConditions = new ArrayList<>();
 		for(ICondition c : conditions) {
-			ICondition c2 = c.clone().optimize(ops);
+			ICondition c2 = c.optimize(ops);
+			conditionHasBeenOptimized |= c != c2;
 			if(c2.canEvaluate(ops)) {
 				if(c2.evaluate(ops)) {
-					return new TRUE();
+					return new ConditionBundle(TRUE.INSTANCE);
 				} else {
 					// skip this condition because it is always false
 				}
@@ -119,23 +159,23 @@ public class ConditionBundle implements ICondition {
 			}
 		}
 		
-		if(newConditions.size() == 0) {
-			return FALSE.INSTANCE;
-		} else {
+		if(conditionHasBeenOptimized) {
 			ConditionBundle result = new ConditionBundle();
-			result.conditions = newConditions;
+			result.addConditions(newConditions);
 			return result;
+		} else {
+			return this;
 		}
 	}
 	
 	@Override
-	public ICondition optimize(List<? extends IOperand> ops, IOperand additionalOp) {
+	public ConditionBundle optimize(List<? extends IOperand> ops, IOperand additionalOp) {
 		List<ICondition> newConditions = new ArrayList<>();
 		for(ICondition c : conditions) {
 			ICondition c2 = c.optimize(ops, additionalOp);
 			if(c2.canEvaluate(ops, additionalOp)) {
 				if(c2.evaluate(ops, additionalOp)) {
-					return new TRUE();
+					return new ConditionBundle(TRUE.INSTANCE);
 				} else {
 					// skip this condition because it is always false
 				}
@@ -145,7 +185,7 @@ public class ConditionBundle implements ICondition {
 		}
 		
 		ConditionBundle result = new ConditionBundle();
-		result.conditions = newConditions;
+		result.addConditions(newConditions);
 		return result;
 	}
 	@Override
@@ -176,5 +216,29 @@ public class ConditionBundle implements ICondition {
 			}
 		}
 		return null;
+	}
+	
+	@Override
+	public Set<String> getClassificationVariableNames() {
+		Set<String> result = new HashSet<>();
+		
+		for(ICondition c : conditions) {
+			result.addAll(c.getClassificationVariableNames());
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * @param name null or "" returns conditions that have no variables
+	 * @return non-null list
+	 */
+	public List<?extends ICondition> getConditionsForClassificationVariable(String name) {
+		if(name == null) {
+			name = "";
+		}
+		
+		List<ICondition> result = conditionsForClassificationVariable.get(name);
+		return result != null ? result : Collections.emptyList();
 	}
 }

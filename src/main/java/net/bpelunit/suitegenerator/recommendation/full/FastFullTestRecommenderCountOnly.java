@@ -79,4 +79,12 @@ public class FastFullTestRecommenderCountOnly extends Recommender {
 			}
 		}
 	}
+
+	public long getValidTestCases() {
+		return testCasesToGenerate;
+	}
+
+	public long getForbiddenTestCases() {
+		return -1;
+	}
 }

@@ -1,5 +1,6 @@
 package net.bpelunit.suitegenerator.datastructures.conditions;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -103,5 +104,12 @@ public class OperandCondition extends AbstractCondition implements ICondition {
 	@Override
 	public String getAnyVariable() {
 		return variableName;
+	}
+	
+	@Override
+	public Set<String> getClassificationVariableNames() {
+		Set<String> result = new HashSet<>(1);
+		result.add(variableName);
+		return result ;
 	}
 }

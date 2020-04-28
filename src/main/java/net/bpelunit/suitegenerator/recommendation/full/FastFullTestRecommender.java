@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariable;
-import net.bpelunit.suitegenerator.datastructures.conditions.ICondition;
+import net.bpelunit.suitegenerator.datastructures.conditions.ConditionBundle;
 import net.bpelunit.suitegenerator.datastructures.conditions.IOperand;
 import net.bpelunit.suitegenerator.recommendation.Recommendation;
 import net.bpelunit.suitegenerator.recommendation.Recommender;
@@ -50,15 +50,15 @@ public class FastFullTestRecommender extends Recommender {
 		notifyNewState("Created "  + recommendations.size() + " test cases in " + (end-start) + "ms");
 	}
 	
-	private void createRecommendationForVariablesInForbidden(List<String> remainingVariablesInForbidden, List<String> remainingVariablesNotInForbidden, ICondition currentOptimizedForbidden, List<Selection> currentSelection) {
+	private void createRecommendationForVariablesInForbidden(List<String> remainingVariablesInForbidden, List<String> remainingVariablesNotInForbidden, ConditionBundle currentOptimizedForbidden, List<Selection> currentSelection) {
 		if(remainingVariablesInForbidden.size() > 0) {
 			String currentVariable = remainingVariablesInForbidden.remove(0);
 			try {
 				ClassificationVariable cv = classificationVariablesByName.get(currentVariable);
 				List<Selection> currentValues = statistic.getRootVariables().get(cv);
 				for(Selection s : currentValues) {
-					ICondition newForbidden = currentOptimizedForbidden.optimize(Arrays.asList(s));
-					if(solver.canBe(false, newForbidden, leafsByRoot)) {
+					ConditionBundle newForbidden = currentOptimizedForbidden.optimize(Arrays.asList(s));
+					if(solver.canBeAllowed(newForbidden.getConditionsForClassificationVariable(s.getVariableName()), leafsByRoot)) {
 						List<Selection> newSelection = new ArrayList<>(currentSelection);
 						newSelection.add(s);
 						createRecommendationForVariablesInForbidden(remainingVariablesInForbidden, remainingVariablesNotInForbidden, newForbidden, newSelection);

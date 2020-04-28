@@ -8,6 +8,9 @@ public class FALSE implements ICondition {
 
 	public static final FALSE INSTANCE = new FALSE();
 	
+	private FALSE() {
+	}
+	
 	@Override
 	public boolean evaluate(List<? extends IOperand> ops) {
 		return false;
@@ -45,7 +48,7 @@ public class FALSE implements ICondition {
 	
 	@Override
 	public FALSE clone() {
-		return new FALSE();
+		return INSTANCE;
 	}
 
 	@Override
@@ -77,9 +80,13 @@ public class FALSE implements ICondition {
 	public void getVariableNames(Set<String> variables) {
 	}
 	
-	
 	@Override
 	public String getAnyVariable() {
 		return null;
+	}
+	
+	@Override
+	public Set<String> getClassificationVariableNames() {
+		return Collections.emptySet();
 	}
 }

@@ -57,16 +57,20 @@ public class NOT extends AbstractCondition implements ICondition {
 	
 	@Override
 	public ICondition optimize(List<? extends IOperand> ops) {
-		first = first.optimize(ops);
+		ICondition newFirst = first.optimize(ops);
 		
-		if(canEvaluate(ops)) {
-			if(evaluate(ops)) {
-				return new TRUE();
+		if(newFirst.canEvaluate(ops)) {
+			if(!newFirst.evaluate(ops)) {
+				return TRUE.INSTANCE;
 			} else {
-				return new FALSE();
+				return FALSE.INSTANCE;
 			}
 		} else {
-			return this;
+			if(newFirst != first) {
+				return new NOT(newFirst);
+			} else {
+				return this;
+			}
 		}
 	}
 	
@@ -78,5 +82,10 @@ public class NOT extends AbstractCondition implements ICondition {
 	@Override
 	public String getAnyVariable() {
 		return first.getAnyVariable();
+	}
+	
+	@Override
+	public Set<String> getClassificationVariableNames() {
+		return first.getClassificationVariableNames();
 	}
 }

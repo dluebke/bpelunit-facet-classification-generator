@@ -12,13 +12,14 @@ import java.util.Random;
 
 import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariable;
 import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariableNameComparator;
-import net.bpelunit.suitegenerator.datastructures.conditions.FALSE;
-import net.bpelunit.suitegenerator.datastructures.conditions.ICondition;
+import net.bpelunit.suitegenerator.datastructures.conditions.ConditionBundle;
 import net.bpelunit.suitegenerator.datastructures.conditions.IOperand;
 import net.bpelunit.suitegenerator.recommendation.IConfigurableRecommender;
 import net.bpelunit.suitegenerator.recommendation.Recommendation;
 import net.bpelunit.suitegenerator.recommendation.Recommender;
 import net.bpelunit.suitegenerator.solver.ConditionSATSolver;
+import net.bpelunit.suitegenerator.solver.ITupelGenerator;
+import net.bpelunit.suitegenerator.solver.PairGenerator;
 import net.bpelunit.suitegenerator.statistics.Selection;
 
 public class Aetg extends Recommender implements IConfigurableRecommender {
@@ -79,7 +80,7 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 		super.createRecommendations();
 
 		if(forbidden == null) {
-			forbidden = new FALSE();
+			forbidden = new ConditionBundle();
 		}
 		
 		notifyNewState("Efective configuration: t=" + tCoverage + ", repetitions=" + repetitions + ", maxEmptyRounds=" + maxEmptyRounds);
@@ -112,7 +113,9 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 
 		notifyNewState("Generate all valid tupels");
 		long t1 = System.currentTimeMillis();
-		List<List<?extends IOperand>> uncoveredTupels = solver.generateAllValidTupels(leafsByRoot, forbidden, tCoverage);
+		ITupelGenerator tupelGenerator = tCoverage == 2 ? new PairGenerator() : solver;
+		List<List<?extends IOperand>> uncoveredTupels = tupelGenerator.generateAllValidTupels(leafsByRoot, forbidden, tCoverage);
+		
 		TupelBucket uncoveredTupelBucket = new TupelBucket(uncoveredTupels);
 		long t2 = System.currentTimeMillis();
 		notifyNewState("Generated " + uncoveredTupels.size() + " tupels in " + (t2-t1) + "ms");
@@ -236,9 +239,8 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 	private List<IOperand> generateNextTestCase(TupelBucket uncoveredTupels) {
 		// from http://testingeducation.org/BBST/testdesign/Cohen_AETG_System.pdf
 		// 1. Choose a parameter f and a value l for f such that that parameter value appears in the greatest number of uncovered pairs.
-		// 2. Let f1 =	f. Then choose a random order for the remaining parameters. Then we	have an order for all k parameters 
-		// f1, ... fk
-		Selection l = (Selection)getMostUnusedSelection(uncoveredTupels);
+		
+		Selection l = getMostUnusedSelection(uncoveredTupels);
 		if(l == null) {
 			return Collections.emptyList();
 		}
@@ -246,6 +248,8 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 		List<List<? extends IOperand>> tupelsWithL = uncoveredTupels.getTupelsWithOperand(l);
 		List<? extends IOperand> tupelToStart = tupelsWithL.get(randomGenerator.nextInt(tupelsWithL.size()));
 		
+		// 2. Let f1 =	f. Then choose a random order for the remaining parameters. Then we	have an order for all k parameters 
+		// f1, ... fk		
 		List<ClassificationVariable> listF = new ArrayList<>();
 		List<IOperand> listV = new ArrayList<>();
 		for(IOperand o : tupelToStart) {
@@ -254,12 +258,12 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 			listV.add(o);
 		}
 		
-		while(roots.size() > listF.size()) {
-			int index = randomGenerator.nextInt(roots.size());
-			ClassificationVariable v = roots.get(index);
-			if(!listF.contains(v)) {
-				listF.add(v);
-			}
+		List<ClassificationVariable> remainingRoots = new ArrayList<>(roots);
+		remainingRoots.removeAll(listF);
+		while(!remainingRoots.isEmpty()) {
+			int index = randomGenerator.nextInt(remainingRoots.size());
+			ClassificationVariable v = remainingRoots.remove(index);
+			listF.add(v);
 		}
 		
 		// 3. Assume that values have been selected for parameters f 1,...,fj. For 1 <=i<=j, let the selected value for f
@@ -271,7 +275,7 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 			int max = 0;
 			
 			ClassificationVariable fi = listF.get(i);
-			List<?extends IOperand> valuesForFi = getSelectableValues(listV, leafsByRoot.get(fi));
+			List<?extends IOperand> valuesForFi = getSelectableValues(forbidden, leafsByRoot, listV, leafsByRoot.get(fi));
 			for(IOperand v : valuesForFi) {
 				int newlyCoveredTupels = calculateNewlyCoveredTupels(listV, v, uncoveredTupels);
 				
@@ -299,37 +303,33 @@ public class Aetg extends Recommender implements IConfigurableRecommender {
 		return listV;
 	}
 
-	private List<IOperand> getSelectableValues(List<?extends IOperand> chosenSelections, List<?extends IOperand> allValues) {
+	private List<IOperand> getSelectableValues(ConditionBundle forbidden, Map<ClassificationVariable, List<?extends IOperand>> leafsByRoot, List<?extends IOperand> chosenSelections, List<?extends IOperand> allValues) {
 		List<IOperand> result = new ArrayList<>();
 		
-		ICondition f = forbidden.clone().optimize(chosenSelections);
+		ConditionBundle f = forbidden.optimize(chosenSelections);
 		for(IOperand v : allValues) {
-			if(!isAlwaysForbidden(f, v)) {
+			ConditionBundle f2 = f.optimize(Arrays.asList(v));
+			if(solver.canBeAllowed(f2.getConditionsForClassificationVariable(v.getVariableName()), leafsByRoot)) {
 				result.add(v);
 			}
-			
 		}
 		
 		return result;
 	}
 
-	private boolean isAlwaysForbidden(ICondition f, IOperand v) {
-		List<IOperand> l = v != null ? Arrays.asList(v) : Collections.emptyList();
-		f = f.optimize(l);
-		return !solver.canBeWithString(false, f, leafsByRootAsString);
-	}
-
-	private boolean isAlwaysForbidden(List<?extends IOperand> newSelection) {
-		return !(solver.canBeWithString(false, forbidden.clone().optimize(newSelection), leafsByRootAsString));
-	}
-
 	private int calculateNewlyCoveredTupels(List<?extends IOperand> listV, IOperand v, TupelBucket uncoveredTupels) {
+		List<List<? extends IOperand>> tupelsWithOperand = uncoveredTupels.getTupelsWithOperand(v);
+		
+		if(tupelsWithOperand == null || tupelsWithOperand.isEmpty()) {
+			return 0;
+		}
+		
 		List<IOperand> allSelections = new ArrayList<>(listV.size() + 1);
 		allSelections.addAll(listV);
 		allSelections.add(v);
 		int count = 0;
 		
-		for(List<?extends IOperand> s : uncoveredTupels.getTupelsWithOperand(v)) {
+		for(List<?extends IOperand> s : tupelsWithOperand) {
 			if(allSelections.containsAll(s)) {
 				count++;
 			}

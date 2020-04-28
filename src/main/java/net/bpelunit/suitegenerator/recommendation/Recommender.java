@@ -11,7 +11,7 @@ import java.util.Set;
 import net.bpelunit.suitegenerator.datastructures.classification.Classification;
 import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariable;
 import net.bpelunit.suitegenerator.datastructures.classification.ClassificationVariableSelection;
-import net.bpelunit.suitegenerator.datastructures.conditions.ICondition;
+import net.bpelunit.suitegenerator.datastructures.conditions.ConditionBundle;
 import net.bpelunit.suitegenerator.datastructures.conditions.OperandCondition;
 import net.bpelunit.suitegenerator.datastructures.variables.VariableLibrary;
 import net.bpelunit.suitegenerator.statistics.IStatistics;
@@ -23,7 +23,7 @@ public abstract class Recommender implements IRecommender {
 	protected IStatistics statistic;
 	protected VariableLibrary variables;
 	protected Classification classification;
-	protected ICondition forbidden;
+	protected ConditionBundle forbidden;
 
 	protected List<Recommendation> recommendations = null;
 	protected List<IRecommenderStatusListener> listeners = new ArrayList<>();

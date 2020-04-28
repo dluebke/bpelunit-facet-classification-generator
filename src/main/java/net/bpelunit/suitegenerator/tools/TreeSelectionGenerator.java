@@ -37,16 +37,17 @@ public class TreeSelectionGenerator {
 			}
 			
 			for(IClassificationElement n : allNodes) {
-				out.write("  <csg:mapping name=\"");
+				out.write("\t<csg:mapping name=\"");
 				out.write(getClassificationPathName(n));
 				out.write("\">\n");
 				if(allNodes.contains(n.getParent())) {
-					out.write("      <csg:extends>");
+					out.write("\t\t<csg:extends>");
 					out.write(getClassificationPathName(n.getParent()));
 					out.write("</csg:extends>\n");
 				}
-				out.write("  </csg:mapping>\n\n");
+				out.write("\t</csg:mapping>\n");
 			}
+			out.write("\n");
 			
 			out.write("</csg:mappings>\n");
 		}

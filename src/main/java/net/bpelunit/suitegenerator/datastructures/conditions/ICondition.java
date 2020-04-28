@@ -35,4 +35,6 @@ public interface ICondition {
 
 	void getVariableNames(Set<String> variables);
 	String getAnyVariable();
+	
+	Set<String> getClassificationVariableNames();
 }

@@ -84,22 +84,30 @@ public class AND extends AbstractCondition implements ICondition {
 	
 	@Override
 	public ICondition optimize(List<? extends IOperand> ops) {
-		first = first.optimize(ops);
-		second = second.optimize(ops);
 		
-		if(canEvaluate(ops)) {
-			if(evaluate(ops)) {
-				return TRUE.INSTANCE;
-			} else {
-				return FALSE.INSTANCE;
-			}
+		ICondition newFirst = first.optimize(ops);
+		if(newFirst.isAlwaysFalse()) {
+			return FALSE.INSTANCE;
+		}
+		
+		ICondition newSecond = second.optimize(ops);
+		if(newSecond.isAlwaysFalse()) {
+			return FALSE.INSTANCE;
+		}
+		
+		if(newFirst.isAlwaysTrue() && newSecond.isAlwaysTrue()) {
+			return TRUE.INSTANCE;
+		}
+		
+		if(newFirst.isAlwaysTrue()) {
+			return newSecond;
+		}
+		if(newSecond.isAlwaysTrue()) {
+			return newFirst;
+		}
+		if(newFirst != first || newSecond != second) {
+			return new AND(newFirst, newSecond);
 		} else {
-			if(first.isAlwaysTrue()) {
-				return second;
-			}
-			if(second.isAlwaysTrue()) {
-				return first;
-			}
 			return this;
 		}
 	}
@@ -118,5 +126,15 @@ public class AND extends AbstractCondition implements ICondition {
 		} else {
 			return second.getAnyVariable();
 		}
+	}
+	
+	@Override
+	public Set<String> getClassificationVariableNames() {
+		Set<String> result = new HashSet<>();
+		
+		result.addAll(first.getClassificationVariableNames());
+		result.addAll(second.getClassificationVariableNames());
+		
+		return result;
 	}
 }

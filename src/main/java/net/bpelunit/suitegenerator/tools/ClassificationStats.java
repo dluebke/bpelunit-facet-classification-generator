@@ -16,6 +16,7 @@ import net.bpelunit.suitegenerator.datastructures.variables.VariableLibrary;
 import net.bpelunit.suitegenerator.reader.IClassificationReader;
 import net.bpelunit.suitegenerator.reader.ICodeFragmentReader;
 import net.bpelunit.suitegenerator.reader.ReaderFactory;
+import net.bpelunit.suitegenerator.recommendation.full.FastFullTestRecommenderCountOnly;
 import net.bpelunit.suitegenerator.recommendation.full.FullTestRecommenderCountOnly;
 import net.bpelunit.suitegenerator.recommendation.full.FullTestRecommenderCountOnly.Mode;
 import net.bpelunit.suitegenerator.statistics.Statistics;
@@ -65,7 +66,7 @@ public class ClassificationStats {
 		Classification classification = classificationReader.getClassification();
 		String classificationStats = generateClassificationStats(classification.getTree());
 		String forbiddenStats = generateForbiddenStats(classification.getForbidden());
-		FullTestRecommenderCountOnly r = new FullTestRecommenderCountOnly(Mode.SILENT);
+		FastFullTestRecommenderCountOnly r = new FastFullTestRecommenderCountOnly();
 		r.setClassificationData(stat, variableLibrary, classification);
 		r.getRecommendations();
 		long validTestCases = r.getValidTestCases();
