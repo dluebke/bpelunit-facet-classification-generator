@@ -24,7 +24,7 @@ public class InsertedInstance extends BaseVariable implements IInsertedInstance 
 	}
 
 	private void parseContent(Element content) {
-		for (Element var : content.getDescendants(new ElementFilter(Config.get().getVariableSlotTag()))) {
+		for (Element var : content.getDescendants(new ElementFilter(Config.get().getVariableSlotTag(), Config.get().getGeneratorSpace()))) {
 			Attribute nameAtt = var.getAttribute("name");
 			if (nameAtt == null || nameAtt.getValue() == null || nameAtt.getValue().isEmpty()) {
 				Config.get().out().varSlotWithoutName(this.name);
@@ -36,6 +36,8 @@ public class InsertedInstance extends BaseVariable implements IInsertedInstance 
 				addSlot(new VariableSlot(var, name));
 			}
 		}
+		
+		
 	}
 
 	private void addSlot(VariableSlot variableSlot) {

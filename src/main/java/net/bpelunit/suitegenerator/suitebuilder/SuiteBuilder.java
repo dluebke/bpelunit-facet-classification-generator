@@ -46,6 +46,7 @@ public class SuiteBuilder {
 		
 		if(!ignoreUserTestCases) {
 			for (TestCase t : testCases) {
+				t.setTestCaseIndex(testCaseIndex);
 				if(overrideTestCaseNames) {
 					t.setName(generateTestCaseName(testCaseIndex, t.getSelections()));
 				}
@@ -108,6 +109,7 @@ public class SuiteBuilder {
 			String testCaseName = generateTestCaseName(testCaseIndex, r.getRecommendedSelections());
 			
 			TestCase t = new TestCase(testCaseName);
+			t.setTestCaseIndex(testCaseIndex);
 			for (ClassificationVariableSelection cvs : r.getRecommendedSelections()) {
 				t.markAsNecessary(cvs);
 			}

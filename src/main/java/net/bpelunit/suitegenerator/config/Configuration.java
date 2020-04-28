@@ -169,4 +169,8 @@ class Configuration implements IConfiguration {
 		return "Forbidden:";
 	}
 
+	@Override
+	public String getPlaceholderTestCaseIndex() {
+		return "testCaseIndex";
+	}
 }

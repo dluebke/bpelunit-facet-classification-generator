@@ -1,6 +1,7 @@
 package net.bpelunit.suitegenerator.suitebuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -79,8 +80,16 @@ public class TestCaseBuilder implements SlotVisitor {
 		for(Element e : remainingGeneratorElements) {
 			myCopy.add(e);
 		}
-		
+
+		List<String> allowedElements = Arrays.asList(
+				Config.get().getMessageSlotName(),
+				Config.get().getVariableSlotTag(),
+				Config.get().getPlaceholderTestCaseIndex()
+				);
 		for(Element e : myCopy) {
+			if(!allowedElements.contains(e.getName())) {
+				System.err.println("Found invalid generator element: " + e.getName());
+			}
 			e.detach();
 		}
 	}
@@ -178,7 +187,7 @@ public class TestCaseBuilder implements SlotVisitor {
 	private void insertVarInstances() {
 		for (PartnerTrackInstance p : partner.values()) {
 			p.deactivateSlots(deactivatedSlots);
-			p.attachInstances(instanceForVarName);
+			p.attachInstances(instanceForVarName, testCase);
 		}
 	}
 

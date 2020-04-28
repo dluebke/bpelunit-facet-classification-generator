@@ -74,4 +74,6 @@ public interface IConfiguration {
 
 	String getForbiddenStart();
 
+	String getPlaceholderTestCaseIndex();
+
 }

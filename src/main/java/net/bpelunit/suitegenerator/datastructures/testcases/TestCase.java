@@ -22,11 +22,20 @@ public class TestCase {
 	private String name;
 	private ClassificationVariableSelection faultElement = null;
 	private boolean moreThanOneFaultElement;
+	private int testCaseIndex;
 
 	public TestCase(String name) {
 		this.name = name;
 	}
 
+	public void setTestCaseIndex(int testCaseIndex) {
+		this.testCaseIndex = testCaseIndex;
+	}
+	
+	public int getTestCaseIndex() {
+		return testCaseIndex;
+	}
+	
 	public void markAsNecessary(ClassificationVariableSelection inst) {
 		activatedVariables.add(inst);
 		IClassificationElement e = inst.getParent();

@@ -8,6 +8,8 @@ import java.util.Set;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 
+import net.bpelunit.suitegenerator.datastructures.testcases.TestCase;
+
 /**
  * Collects message-instances that are selected to be in the represented PartnerTrack
  *
@@ -58,11 +60,12 @@ public class PartnerTrackInstance {
 		return name;
 	}
 
-	public void attachInstances(Map<String, IVariableInstance> instanceForVarName) {
+	public void attachInstances(Map<String, IVariableInstance> instanceForVarName, TestCase testCase) {
 		for (MessageExchangeInstance mei : sequencedMessages.values()) {
 			if (mei != null) { // There can be empty slots!
-				mei.insertVariables(instanceForVarName);
+				mei.insertVariables(instanceForVarName, testCase);
 			}
+			mei.replaceTestCaseMetaData(testCase);
 		}
 	}
 
