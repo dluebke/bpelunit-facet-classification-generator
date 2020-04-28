@@ -30,10 +30,10 @@ public class Generator {
 		Config.get().out().printClassificationTree(tree);
 	}
 
-	public void generate(File folder, IRecommender recommender, boolean createNewTestCases, String suiteFileName, boolean ignoreUserTestCases) {
+	public void generate(File folder, IRecommender recommender, boolean createNewTestCases, String suiteFileName, boolean ignoreUserTestCases, boolean overrideTestCaseNames) {
 		SuiteBuilder sb = new SuiteBuilder();
 		sb.buildSuite(fragmentReader.getSkeletalStructure(), classificationReader.getClassification(), folder,
-				fragmentReader, ignoreUserTestCases);
+				fragmentReader, ignoreUserTestCases, overrideTestCaseNames);
 		stat.update(classificationReader.getClassification().getAllClassificationTreeLeaves(),
 				fragmentReader.getVariables());
 		Config.get().out().printStatistics(stat);

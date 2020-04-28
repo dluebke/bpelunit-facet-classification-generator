@@ -32,8 +32,9 @@ public class SuiteBuilder {
 	private Namespace nsBPELUnit;
 	private VariableLibrary data;
 	private File destFolder;
+	private int testCaseIndex = 1;
 
-	public void buildSuite(Element baseFile, Classification classification, File destFolder, ICodeFragmentReader fragment, boolean ignoreUserTestCases) {
+	public void buildSuite(Element baseFile, Classification classification, File destFolder, ICodeFragmentReader fragment, boolean ignoreUserTestCases, boolean overrideTestCaseNames) {
 
 		Collection<TestCase> testCases = classification.getTestCases();
 
@@ -42,11 +43,17 @@ public class SuiteBuilder {
 		nsBPELUnit = currentRoot.getNamespace();
 		data = fragment.getVariables();
 		this.destFolder = destFolder;
+		
 		if(!ignoreUserTestCases) {
 			for (TestCase t : testCases) {
+				if(overrideTestCaseNames) {
+					t.setName(generateTestCaseName(testCaseIndex, t.getSelections()));
+				}
+				
 	//			System.out.println("Test Case " + t.getName() + ":");
 				validateTestCase(t, classification.getForbidden());
 				attachNewTestCase(t, currentTestCasesElement, nsBPELUnit, data);
+				testCaseIndex++;
 			}
 		}
 	}
@@ -97,22 +104,25 @@ public class SuiteBuilder {
 	}
 
 	public void addRecommendations(IRecommender recommender) {
-		int num = 1;
 		for (Recommendation r : recommender.getRecommendations()) {
-			List<String> classificationNames = new ArrayList<>();
-			for (ClassificationVariableSelection cvs : r.getRecommendedSelections()) {
-				classificationNames.add(cvs.getCompleteName());
-			}
-			Collections.sort(classificationNames);
-			String testCaseName = "TC" + (num++) + " " + String.join("|", classificationNames.toArray(new String[classificationNames.size()]));
-//			String testCaseName = String.join("|", classificationNames.toArray(new String[classificationNames.size()]));
+			String testCaseName = generateTestCaseName(testCaseIndex, r.getRecommendedSelections());
 			
 			TestCase t = new TestCase(testCaseName);
 			for (ClassificationVariableSelection cvs : r.getRecommendedSelections()) {
 				t.markAsNecessary(cvs);
 			}
 			attachNewTestCase(t, currentTestCasesElement, nsBPELUnit, data);
+			testCaseIndex++;
 		}
+	}
+
+	private String generateTestCaseName(int num, List<ClassificationVariableSelection> selections) {
+		List<String> classificationNames = new ArrayList<>();
+		for (ClassificationVariableSelection cvs : selections) {
+			classificationNames.add(cvs.getCompleteName());
+		}
+		Collections.sort(classificationNames);
+		return "TC" + num + " " + String.join("|", classificationNames.toArray(new String[classificationNames.size()]));
 	}
 
 	public void saveSuite(String suiteFileName) {

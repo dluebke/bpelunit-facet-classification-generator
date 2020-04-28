@@ -20,6 +20,7 @@ public class Executor {
 	private static boolean createRecommendations = false;
 	private static boolean createNewTestCases = false;
 	private static boolean ignoreUserTestCases = false;
+	private static boolean overrideTestCaseNames = false;
 	private static IRecommender recommender = new Permutation();
 	private static RecommenderFactory recommenderFactory = new RecommenderFactory();
 	private static File projectFolder = new File("files/suite/");
@@ -37,6 +38,7 @@ public class Executor {
 		options.addOption("n", true, "Test Cases to select with suitable recommender, e.g. random recommender=test suites to select, AETG etc. t-level, ...");
 		options.addOption("recommenderclass", true, "A full qualified class name of the recommender to use. Overrides recommender");
 		options.addOption("ignoreusertestcases", false, "Ignore all user-defined test cases. Only usable with -g");
+		options.addOption("overridetestcasenames", false, "Set test case names even for user-defined tests like with generated tests");
 		options.addOption("help", false, "Shows help and aborts");
 		
 		CommandLineParser parser = new DefaultParser();
@@ -58,6 +60,9 @@ public class Executor {
 			if(cmd.hasOption("ignoreusertestcases")) {
 				ignoreUserTestCases = true;
 			}
+		}
+		if(cmd.hasOption("overridetestcasenames")) {
+			overrideTestCaseNames = true;
 		}
 		if(cmd.hasOption("s")) {
 			targetSuiteFileName = cmd.getOptionValue("s"); 
@@ -99,7 +104,7 @@ public class Executor {
 		}
 		
 		Generator g = new Generator(new File(projectFolder, classificationFileName));
-		g.generate(projectFolder, createRecommendations ? recommender : null, createNewTestCases, targetSuiteFileName, ignoreUserTestCases);
+		g.generate(projectFolder, createRecommendations ? recommender : null, createNewTestCases, targetSuiteFileName, ignoreUserTestCases, overrideTestCaseNames);
 	}
 
 }
